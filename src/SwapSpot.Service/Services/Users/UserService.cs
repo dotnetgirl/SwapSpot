@@ -3,12 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SwapSpot.DAL.IRepositories;
 using SwapSpot.DAL.IRepositories.Authorizations;
-using SwapSpot.DAL.IRepositories.Commons;
-using SwapSpot.Domain.Authorizations;
-using SwapSpot.Domain.Entities.Assets;
 using SwapSpot.Domain.Entities.Users;
 using SwapSpot.Service.Configurations;
-using SwapSpot.Service.DTOs.Assets;
 using SwapSpot.Service.DTOs.Users;
 using SwapSpot.Service.Exceptions;
 using SwapSpot.Service.Extentions;
@@ -46,6 +42,7 @@ public class UserService : IUserService
         var mappedUser = _mapper.Map<User>(dto);
         mappedUser.CreatedAt = DateTime.UtcNow;
         mappedUser.Password = PasswordHelper.Hash(dto.Password);
+        mappedUser.RoleId = 1;
         var addedModel = await _userRepository.InsertAsync(mappedUser);
 
         return _mapper.Map<UserForResultDto>(addedModel);
@@ -55,7 +52,7 @@ public class UserService : IUserService
         var user = await _userRepository.SelectAll()
                         .Where(u => u.Id == id)
                         .FirstOrDefaultAsync();
-        if (user is null || user.IsDeleted)
+        if (user is null)
             throw new SwapSpotException(404, "User is not found");
 
         await _userRepository.DeleteAsync(id);
@@ -66,7 +63,6 @@ public class UserService : IUserService
     public async Task<IEnumerable<UserForResultDto>> RetrieveAllAsync(PaginationParams @params)
     {
         var users = await _userRepository.SelectAll()
-            .Where(u => u.IsDeleted == false)
             .ToPagedList(@params)
             .ToListAsync();
 
@@ -75,7 +71,7 @@ public class UserService : IUserService
     public async Task<IEnumerable<UserForResultDto>> RetrieveAllByRoleAsync(PaginationParams @params, long roleId)
     {
         var users = await _userRepository.SelectAll()
-            .Where(u => u.RoleId == roleId && !u.IsDeleted)
+            .Where(u => u.RoleId == roleId)
             .ToPagedList(@params)
             .ToListAsync();
 
@@ -85,7 +81,7 @@ public class UserService : IUserService
     public async Task<UserForResultDto> RetrieveByIdAsync(long id)
     {
         var user = await _userRepository.SelectAsync(id);
-        if (user is null || user.IsDeleted == true)
+        if (user is null)
             throw new SwapSpotException(404, "User is not found");
 
         return _mapper.Map<UserForResultDto>(user);
@@ -93,7 +89,7 @@ public class UserService : IUserService
     public async Task<UserForResultDto> ModifyAsync(long id, UserForUpdateDto dto)
     {
         var user = await _userRepository.SelectAsync(id);
-        if (user is null || user.IsDeleted == true)
+        if (user is null)
             throw new SwapSpotException(404, "User is not found");
 
         var modifiedUser = _mapper.Map(dto, user);
@@ -117,7 +113,7 @@ public class UserService : IUserService
                 .Where(u => u.Email == dto.Email)
                 .FirstOrDefaultAsync();
 
-        if (user is null || user.IsDeleted)
+        if (user is null)
             throw new SwapSpotException(404, "User is not found");
 
         if (!PasswordHelper.Verify(dto.OldPassword, user.Password))

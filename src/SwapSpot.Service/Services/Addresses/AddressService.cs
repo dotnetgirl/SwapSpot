@@ -33,14 +33,14 @@ public class AddressService : IAddressService
              .Where(u => u.Id == userId)
              .FirstOrDefaultAsync();
 
-        if (user is null && !user.IsDeleted)
+        if (user is null)
             throw new SwapSpotException(404, "User is not found!");
 
         var address = await _addressRepository.SelectAll()
              .Where(u => u.Home == dto.Home)
              .FirstOrDefaultAsync();
 
-        if (user is not null && user.IsDeleted)
+        if (user is not null)
             throw new SwapSpotException(400, "Address is already exist");
 
         var mapped = _mapper.Map<Address>(dto);
@@ -58,7 +58,7 @@ public class AddressService : IAddressService
             .Where(a => a.Id == id)
             .FirstOrDefaultAsync();
 
-        if (address is null && !address.IsDeleted)
+        if (address is null)
             throw new SwapSpotException(404, "Address is not found!");
 
         var mapped = _mapper.Map(dto, address);
@@ -73,7 +73,7 @@ public class AddressService : IAddressService
     {
         var address = await _addressRepository.SelectAsync(id);
 
-        if (address is null && !address.IsDeleted)
+        if (address is null)
             throw new SwapSpotException(404, "Address is not found!");
 
         await _addressRepository.DeleteAsync(id);
@@ -86,14 +86,14 @@ public class AddressService : IAddressService
             .Where(u => u.Id == userId)
             .FirstOrDefaultAsync();
 
-        if (user is null && !user.IsDeleted)
+        if (user is null)
             throw new SwapSpotException(404, "User is not found!");
 
         var address = await _addressRepository.SelectAll()
             .Where(a => a.Id == id)
             .FirstOrDefaultAsync();
 
-        if (address is null && !address.IsDeleted)
+        if (address is null)
             throw new SwapSpotException(404, "Address is not found!");
 
         return _mapper.Map<AddressForResultDto>(address);
@@ -102,7 +102,6 @@ public class AddressService : IAddressService
     public async Task<IEnumerable<AddressForResultDto>> GetAllAsync(PaginationParams @params)
     {
         var addresses = await _addressRepository.SelectAll()
-            .Where(a => a.IsDeleted == false)
             .ToPagedList(@params)
             .ToListAsync();
 

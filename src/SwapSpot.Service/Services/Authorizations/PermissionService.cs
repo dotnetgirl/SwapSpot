@@ -29,7 +29,7 @@ public class PermissionService : IPermissionService
         var exist = await _permissionRepository.SelectAll()
             .Where(p => p.Name.Equals(dto.Name))
             .FirstOrDefaultAsync();
-        if (exist is not null || !exist.IsDeleted)
+        if (exist is not null)
             throw new SwapSpotException(404, "Permission is already exist");
 
         var mappedPermission = _mapper.Map<Permission>(dto);
@@ -41,7 +41,6 @@ public class PermissionService : IPermissionService
     public async Task<IEnumerable<PermissionForResultDto>> RetrieveAllAsync(PaginationParams @params)
     {
         var permissions = await _permissionRepository.SelectAll()
-            .Where(p => p.IsDeleted == false)
             .ToPagedList(@params)
             .ToListAsync();
 
@@ -54,7 +53,7 @@ public class PermissionService : IPermissionService
             .Where(p => p.Id.Equals(id))
             .FirstOrDefaultAsync();
 
-        if (exist is null || !exist.IsDeleted)
+        if (exist is null)
             throw new SwapSpotException(404, "Permission is not found");
 
         return _mapper.Map<PermissionForResultDto>(exist);
@@ -65,7 +64,7 @@ public class PermissionService : IPermissionService
         var exist = await _permissionRepository.SelectAll()
             .Where(p => p.Id.Equals(id))
             .FirstOrDefaultAsync();
-        if (exist is null || !exist.IsDeleted)
+        if (exist is null)
             throw new SwapSpotException(404, "Permission is not found");
 
         await _permissionRepository.DeleteAsync(id);
@@ -79,7 +78,7 @@ public class PermissionService : IPermissionService
             .Where(p => p.Name.ToLower().Equals(dto.Name.ToLower()))
             .FirstOrDefaultAsync();
 
-        if (exist is null || !exist.IsDeleted)
+        if (exist is null)
             throw new SwapSpotException(404, "Permission is not found");
 
         var mapped = _mapper.Map<Permission>(dto);

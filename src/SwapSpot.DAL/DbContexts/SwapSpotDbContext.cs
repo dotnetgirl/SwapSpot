@@ -26,6 +26,10 @@ public class SwapSpotDbContext : DbContext
     DbSet<RolePermission> RolePermissions { get; set; }
 
     //Fluent Api
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+
+    }
 
     // Seed
 }

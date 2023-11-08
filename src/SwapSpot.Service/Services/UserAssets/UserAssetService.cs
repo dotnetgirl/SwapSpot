@@ -1,20 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using SwapSpot.DAL.IRepositories.Authorizations;
 using SwapSpot.DAL.IRepositories;
 using SwapSpot.Service.Configurations;
 using SwapSpot.Service.DTOs.Assets;
 using SwapSpot.Service.Interfaces.Assets;
-using SwapSpot.DAL.Repositories.Authorizations;
-using SwapSpot.Domain.Entities.Users;
-using SwapSpot.Service.DTOs.Users;
 using SwapSpot.Service.Exceptions;
 using SwapSpot.Shared.Helpers;
 using Microsoft.EntityFrameworkCore;
 using SwapSpot.Domain.Entities.Assets;
-using System.ComponentModel.DataAnnotations;
 using SwapSpot.Service.Extentions;
-using SwapSpot.DAL.Repositories;
 using SwapSpot.Service.Helpers;
 
 namespace SwapSpot.Service.Services.UserAssets;
@@ -42,14 +36,14 @@ public class UserAssetService : IUserAssetService
                     .Where(u => u.Id == dto.UserId)
                     .FirstOrDefaultAsync();
 
-        if (existUser is not null || existUser.IsDeleted == false)
+        if (existUser is not null)
             throw new SwapSpotException(409, "User is already exist");
 
         var existAsset = await _userAssetRepository.SelectAll()
                     .Where(a => a.Name.ToLower() == dto.Name.ToLower() && a.Id == dto.UserId)
                     .FirstOrDefaultAsync();
 
-        if (existAsset is not null || existAsset.IsDeleted == false)
+        if (existAsset is not null)
             throw new SwapSpotException(409, "User Asset is already exist");
 
         var mappedUserAsset = _mapper.Map<UserAsset>(dto);
@@ -62,11 +56,11 @@ public class UserAssetService : IUserAssetService
     public async Task<UserAssetForResultDto> ModifyAsync(long userId,long id, UserAssetForUpdateDto dto)
     {
         var user = await _userRepository.SelectAsync(userId);
-        if (user is null || user.IsDeleted)
+        if (user is null)
             throw new SwapSpotException(404, "User is not found");
 
         var userAsset = await _userAssetRepository.SelectAsync(id);
-        if (userAsset is null || userAsset.IsDeleted)
+        if (userAsset is null)
             throw new SwapSpotException(404, "UserAsset is not found");
 
         var modifiedUserAsset = _mapper.Map(dto, userAsset);
@@ -83,7 +77,7 @@ public class UserAssetService : IUserAssetService
         var user = await _userRepository.SelectAll()
                         .Where(u => u.Id == id)
                         .FirstOrDefaultAsync();
-        if (user is null || user.IsDeleted)
+        if (user is null)
             throw new SwapSpotException(404, "User is not found");
 
         await _userRepository.DeleteAsync(id);
@@ -94,7 +88,6 @@ public class UserAssetService : IUserAssetService
     public async Task<IEnumerable<UserAssetForResultDto>> RetrieveAllAsync(PaginationParams @params)
     {
         var userAssets = await _userAssetRepository.SelectAll()
-            .Where(u => u.IsDeleted == false)
             .ToPagedList(@params)
             .ToListAsync();
 
@@ -104,7 +97,7 @@ public class UserAssetService : IUserAssetService
     public async Task<UserAssetForResultDto> RetrieveByIdAsync(long id)
     {
         var userAsset = await _userAssetRepository.SelectAsync(id);
-        if (userAsset is null || userAsset.IsDeleted)
+        if (userAsset is null)
             throw new SwapSpotException(404, "UserAsset is not found");
 
         return _mapper.Map<UserAssetForResultDto>(userAsset);
@@ -115,7 +108,7 @@ public class UserAssetService : IUserAssetService
         var userAsset = await _userAssetRepository.SelectAll()
             .Where(ua => ua.Name.ToLower() == name.ToLower())
             .FirstOrDefaultAsync();
-        if (userAsset is null || userAsset.IsDeleted)
+        if (userAsset is null)
             throw new SwapSpotException(404, "UserAsset is not found");
 
         return _mapper.Map<UserAssetForResultDto>(userAsset);

@@ -4,8 +4,6 @@ namespace SwapSpot.Service.DTOs.Addresses;
 
 public class AddressForUpdateDto
 {
-    public long UserId { get; set; }
-    public User User { get; set; }
     public string City { get; set; }
     public string Street { get; set; }
     public string Floor { get; set; }

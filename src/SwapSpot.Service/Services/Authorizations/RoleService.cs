@@ -2,17 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using SwapSpot.DAL.IRepositories;
 using SwapSpot.DAL.IRepositories.Authorizations;
-using SwapSpot.DAL.IRepositories.Commons;
 using SwapSpot.DAL.Repositories.Authorizations;
 using SwapSpot.Domain.Authorizations;
-using SwapSpot.Domain.Entities.Users;
 using SwapSpot.Service.Configurations;
 using SwapSpot.Service.DTOs.Authorizations.Permissions;
 using SwapSpot.Service.DTOs.Authorizations.Roles;
 using SwapSpot.Service.Exceptions;
 using SwapSpot.Service.Extentions;
 using SwapSpot.Service.Interfaces.Authorizations;
-using SwapSpot.Shared.Helpers;
 using System.Data;
 
 namespace SwapSpot.Service.Services.Authorizations;
@@ -51,7 +48,6 @@ public class RoleService : IRoleService
     public async Task<IEnumerable<RoleForResultDto>> RetrieveAllAsync(PaginationParams @params)
     {
         var roles = await _roleRepository.SelectAll()
-        .Where(u => u.IsDeleted == false)
         .ToPagedList(@params)
         .ToListAsync();
 
@@ -64,7 +60,7 @@ public class RoleService : IRoleService
             .Where(r => r.Name.ToLower().Equals(dto.Name.ToLower()))
             .FirstOrDefaultAsync();
 
-        if (exist is null || !exist.IsDeleted)
+        if (exist is null)
             throw new SwapSpotException(404, "Role is not found");
 
         var mapped = _mapper.Map<Role>(dto);
@@ -80,7 +76,7 @@ public class RoleService : IRoleService
         var exist = await _roleRepository.SelectAll()
             .Where(r => r.Id.Equals(id))
             .FirstOrDefaultAsync();
-        if (exist is null || !exist.IsDeleted)
+        if (exist is null)
             throw new SwapSpotException(404, "Role is not found");
 
         await _roleRepository.DeleteAsync(id);
@@ -94,7 +90,7 @@ public class RoleService : IRoleService
            .Where(r => r.Id.Equals(id))
            .FirstOrDefaultAsync();
 
-        if (exist is null || !exist.IsDeleted)
+        if (exist is null)
             throw new SwapSpotException(404, "Role is not found");
 
         return exist;
@@ -106,7 +102,7 @@ public class RoleService : IRoleService
             .Where(r => r.Id.Equals(id))
             .FirstOrDefaultAsync();
 
-        if (exist is null || !exist.IsDeleted)
+        if (exist is null)
             throw new SwapSpotException(404, "Role is not found");
 
         return _mapper.Map<RoleForResultDto>(exist);
@@ -121,7 +117,7 @@ public class RoleService : IRoleService
         var existRole = await _roleRepository.SelectAll()
             .Where(r => r.Id.Equals(roleId))
             .FirstOrDefaultAsync();
-        if ((existRole is null || existRole.IsDeleted) || ( existUser is null || !existUser.IsDeleted))
+        if ((existRole is null) || ( existUser is null))
             throw new SwapSpotException(404, "User or Role is not found");
 
         existUser.RoleId = roleId;

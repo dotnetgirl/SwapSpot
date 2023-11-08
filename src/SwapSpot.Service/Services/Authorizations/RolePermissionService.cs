@@ -10,8 +10,6 @@ using SwapSpot.Service.DTOs.Authorizations.Roles;
 using SwapSpot.Service.Exceptions;
 using SwapSpot.Service.Extentions;
 using SwapSpot.Service.Interfaces.Authorizations;
-using System.Collections;
-using System.Linq;
 
 namespace SwapSpot.Service.Services.Authorizations;
 
@@ -28,7 +26,7 @@ public class RolePermissionService : IRolePermissionService
     {
         var permissions = await _rolePermissionRepository
                  .SelectAll()
-                 .Where(p => p.Role.Name.ToLower() == role.ToLower() && p.Permisson.IsDeleted == false && p.Role.IsDeleted == false)
+                 .Where(p => p.Role.Name.ToLower() == role.ToLower())
                  .ToListAsync();
         foreach (var permission in permissions)
         {
@@ -45,7 +43,7 @@ public class RolePermissionService : IRolePermissionService
              .Where(rp => rp.RoleId.Equals(dto.RoleId) && rp.PermissonId.Equals(dto.PermissonId))
              .FirstOrDefaultAsync();
 
-        if (exist is not null || !exist.IsDeleted)
+        if (exist is not null)
             throw new SwapSpotException(409, "RolePermission is already exist");
 
         var mappedRolePermission = _mapper.Map<RolePermission>(dto);
@@ -60,7 +58,7 @@ public class RolePermissionService : IRolePermissionService
     {
         var exist = await _rolePermissionRepository.SelectAsync(id);
 
-        if (exist is null || exist.IsDeleted == true)
+        if (exist is null)
             throw new SwapSpotException(404, "RolePermission is not exist");
 
         var mappedRolePermission = _mapper.Map<RolePermission>(dto);
@@ -76,7 +74,7 @@ public class RolePermissionService : IRolePermissionService
             .Where(r => r.Id.Equals(id))
             .FirstOrDefaultAsync();
 
-        if (exist is null || exist.IsDeleted == true)
+        if (exist is null)
             throw new SwapSpotException(404, "RolePermission is not found");
 
         await _rolePermissionRepository.DeleteAsync(id);
@@ -87,7 +85,6 @@ public class RolePermissionService : IRolePermissionService
     public async Task<IEnumerable<RolePermissionForResultDto>> RetrieveAllAsync(PaginationParams @params)
     {
         var rolePermissions = await _rolePermissionRepository.SelectAll()
-            .Where(rp => rp.IsDeleted == false)
             .ToPagedList(@params)
             .ToListAsync();
 
@@ -100,7 +97,7 @@ public class RolePermissionService : IRolePermissionService
             .Where(r => r.Id.Equals(id))
             .FirstOrDefaultAsync();
 
-        if (exist is null || exist.IsDeleted == true)
+        if (exist is null)
             throw new SwapSpotException(404, "RolePermission is not found");
 
         return _mapper.Map<RolePermissionForResultDto>(exist);

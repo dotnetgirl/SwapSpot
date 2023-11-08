@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SwapSpot.DAL.DbContexts;
 using SwapSpot.Domain.Entities.Users;
 using SwapSpot.Service.DTOs.Users.Logins;
 using SwapSpot.Service.Exceptions;
