@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SwapSpot.Api.Controllers.Commons;
 using SwapSpot.Service.Configurations;
 using SwapSpot.Service.DTOs.Assets;
@@ -6,6 +7,7 @@ using SwapSpot.Service.Interfaces.Assets;
 
 namespace SwapSpot.Api.Controllers.Assets;
 
+[Authorize]
 public class UserAssetsController : BaseController
 {
     private readonly IUserAssetService _userAssetService;
@@ -14,6 +16,7 @@ public class UserAssetsController : BaseController
         _userAssetService = userAssetService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllAsync([FromQuery] PaginationParams @params)
         => Ok(new
@@ -50,6 +53,7 @@ public class UserAssetsController : BaseController
             Data = await _userAssetService.ModifyAsync(userId, id, dto)
         });
 
+    [Authorize(Roles = "Admin, User")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAsync(long id)
         => Ok(new
@@ -58,12 +62,13 @@ public class UserAssetsController : BaseController
             Message = "OK",
             Data = await _userAssetService.RemoveAsync(id)
         });
+
+    [Authorize(Roles = "Admin, User")]
     [HttpPost("{id}")]
     public async Task<IActionResult> UploadImage(long id, IFormFile formFile)
         => Ok(new
         {
             Code = 200,
             Message = "OK",
-            Data = await _userAssetService.UploadImage(id, formFile)
         });
 }

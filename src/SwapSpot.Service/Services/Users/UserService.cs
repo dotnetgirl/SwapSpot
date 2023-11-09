@@ -42,7 +42,7 @@ public class UserService : IUserService
         var mappedUser = _mapper.Map<User>(dto);
         mappedUser.CreatedAt = DateTime.UtcNow;
         mappedUser.Password = PasswordHelper.Hash(dto.Password);
-        mappedUser.RoleId = 1;
+        mappedUser.RoleId = 3;
         var addedModel = await _userRepository.InsertAsync(mappedUser);
 
         return _mapper.Map<UserForResultDto>(addedModel);

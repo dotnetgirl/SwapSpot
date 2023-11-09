@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SwapSpot.Api.Controllers.Commons;
 using SwapSpot.Service.Configurations;
 using SwapSpot.Service.DTOs.Authorizations.Permissions;
@@ -6,6 +7,7 @@ using SwapSpot.Service.Interfaces.Authorizations;
 
 namespace SwapSpot.Api.Controllers.Authorizations;
 
+[Authorize(Roles = "Admin, SuperAdmin")]
 public class PermissionsController : BaseController
 {
     private readonly IPermissionService permissionService;
@@ -52,6 +54,7 @@ public class PermissionsController : BaseController
           Data = await this.permissionService.RetrieveByIdAsync(id)
       });
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllAsync([FromQuery] PaginationParams @params)
       => Ok(new

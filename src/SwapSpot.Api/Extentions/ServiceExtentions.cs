@@ -52,6 +52,9 @@ public static class ServiceExtentions
         services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
         services.AddScoped<IRolePermissionService, RolePermissionService>();
 
+        //Logins
+        services.AddScoped<ILoginService, LoginService>();
+
     }
     public static void AddJwtService(this IServiceCollection services, IConfiguration configuration)
     {

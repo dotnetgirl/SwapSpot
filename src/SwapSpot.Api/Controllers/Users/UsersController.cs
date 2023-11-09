@@ -15,6 +15,7 @@ public class UsersController : BaseController
         _userService = userService;
     }
 
+    [Authorize(Roles = "Admin, SuperAdmin")]
     [HttpGet]
     public async Task<IActionResult> GetAllAsync([FromQuery] PaginationParams @params)
         => Ok(new
@@ -33,6 +34,7 @@ public class UsersController : BaseController
             Data = await _userService.RetrieveByIdAsync(id)
         });
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> PostAsync(UserForCreationDto dto)
         => Ok(new 
@@ -42,6 +44,7 @@ public class UsersController : BaseController
             Data = await _userService.AddAsync(dto)
         });
 
+    [Authorize(Roles = "Admin, SuperAdmin, User")]
     [HttpPut("{id}")]
     public async Task<IActionResult> PutAsync(long id, UserForUpdateDto dto)
         => Ok(new
@@ -51,6 +54,7 @@ public class UsersController : BaseController
             Data = await _userService.ModifyAsync(id, dto)
         });
 
+    [Authorize(Roles = "Admin, SuperAdmin, User")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAsync(long id)
         => Ok(new
@@ -60,6 +64,7 @@ public class UsersController : BaseController
             Data = await _userService.RemoveAsync(id)
         });
 
+    [Authorize(Roles = "User")]
     [HttpPut("change-password")]
     public async Task<IActionResult> ChangePasswordAsync(UserForUpdatePasswordDto dto)
         => Ok(new
@@ -68,12 +73,13 @@ public class UsersController : BaseController
             Message = "OK",
             Data = await _userService.ChangePasswordAsync(dto)
         });
+
+    [Authorize(Roles = "User")]
     [HttpPost("form-file")]
     public async Task<IActionResult> UploadImage(IFormFile formFile)
         => Ok(new
         {
             Code = 200,
             Message = "OK",
-            Data = await _userService.UploadImage(formFile)
         });
 }

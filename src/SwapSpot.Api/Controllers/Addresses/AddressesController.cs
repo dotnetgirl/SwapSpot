@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SwapSpot.Api.Controllers.Commons;
 using SwapSpot.Service.Configurations;
 using SwapSpot.Service.DTOs.Addresses;
@@ -8,6 +9,7 @@ using SwapSpot.Service.Interfaces.Users;
 
 namespace SwapSpot.Api.Controllers.Addresses;
 
+[Authorize]
 public class AddressesController : BaseController
 {
     private readonly IAddressService _addressService;
@@ -16,6 +18,7 @@ public class AddressesController : BaseController
         _addressService = addressService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllAsync([FromQuery] PaginationParams @params)
         => Ok(new
@@ -35,7 +38,7 @@ public class AddressesController : BaseController
         });
 
     [HttpPost("{user-id}")]
-    public async Task<ActionResult<AddressForResultDto>> PostAsync([FromRoute(Name = "user-id")] long userId, AddressForCreationDto dto)
+    public async Task<IActionResult> PostAsync([FromRoute(Name = "user-id")] long userId, AddressForCreationDto dto)
         => Ok(new
         {
             Code = 200,
@@ -44,7 +47,7 @@ public class AddressesController : BaseController
         });
 
     [HttpPut("{user-id}/{id}")]
-    public async Task<ActionResult<AddressForResultDto>> PutAsync([FromRoute(Name = "user-id")] long userId, long id, AddressForUpdateDto dto)
+    public async Task<IActionResult> PutAsync([FromRoute(Name = "user-id")] long userId, long id, AddressForUpdateDto dto)
         => Ok(new
         {
             Code = 200,
@@ -52,8 +55,9 @@ public class AddressesController : BaseController
             Data = await _addressService.UpdateByIdAsync(userId, id, dto)
         });
 
+    [Authorize(Roles = "Admin, User")]
     [HttpDelete("{id}")]
-    public async Task<ActionResult<bool>> DeleteAsync(long id)
+    public async Task<IActionResult> DeleteAsync(long id)
         => Ok(new
         {
             Code = 200,
