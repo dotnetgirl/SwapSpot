@@ -62,11 +62,12 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<UserForResultDto>> RetrieveAllAsync(PaginationParams @params)
     {
-        var users = await _userRepository.SelectAll()
-            .ToPagedList(@params)
-            .ToListAsync();
+        var users = _userRepository.SelectAll();
+        if (!users.Any())
+            return new List<UserForResultDto>();
 
-        return _mapper.Map<IEnumerable<UserForResultDto>>(users);
+        var result = await users.ToPagedList(@params).ToListAsync();
+        return _mapper.Map<IEnumerable<UserForResultDto>>(result);
     }
     public async Task<IEnumerable<UserForResultDto>> RetrieveAllByRoleAsync(PaginationParams @params, long roleId)
     {
