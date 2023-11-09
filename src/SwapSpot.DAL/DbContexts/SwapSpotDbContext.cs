@@ -48,7 +48,13 @@ public class SwapSpotDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         //Seeed
-
+        //Task.Run(() =>
+        //{
+        //    Seed(modelBuilder);
+        //}).Wait();
+    }
+    private void Seed(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<User>().HasData(
             new User() { FirstName = "John", LastName = "Doe", Phone = "123-456-7890", Email = "john.doe@email.com", Password = "password123", RoleId = 1 },
             new User() { FirstName = "Jane", LastName = "Smith", Phone = "987-654-3210", Email = "jane.smith@email.com", Password = "securepass", RoleId = 2 },
